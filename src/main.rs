@@ -1,6 +1,40 @@
 #![warn(clippy::all, rust_2018_idioms)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 
+pub struct TypedUI;
+
+impl TypedUI {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+impl eframe::App for TypedUI {
+    /// Called each time the UI needs repainting, which may be many times per second.
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        // Put your widgets into a `SidePanel`, `TopPanel`, `CentralPanel`, `Window` or `Area`.
+        // For inspiration and more examples, go to https://emilk.github.io/egui
+
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            // The top panel is often a good place for a menu bar:
+
+            egui::menu::bar(ui, |ui| {
+                egui::widgets::global_dark_light_mode_buttons(ui);
+            });
+        });
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            // The central panel the region left after adding TopPanel's and SidePanel's
+            ui.heading("TypedUI");
+            if ui.button("Increment").clicked() {}
+
+            ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
+                egui::warn_if_debug_build(ui);
+            });
+        });
+    }
+}
+
 // When compiling natively:
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> eframe::Result<()> {
@@ -12,9 +46,9 @@ fn main() -> eframe::Result<()> {
         ..Default::default()
     };
     eframe::run_native(
-        "eframe template",
+        "TypedUI",
         native_options,
-        Box::new(|cc| Box::new(eframe_template::TemplateApp::new(cc))),
+        Box::new(|_| Box::new(TypedUI::new())),
     )
 }
 
@@ -31,7 +65,7 @@ fn main() {
             .start(
                 "the_canvas_id", // hardcode it
                 web_options,
-                Box::new(|cc| Box::new(eframe_template::TemplateApp::new(cc))),
+                Box::new(|_| Box::new(eframe_template::TemplateApp::new())),
             )
             .await
             .expect("failed to start eframe");
